@@ -1,7 +1,7 @@
 .hero-section {
     position: relative;
     width: 100%;
-    height: calc(100vh - 70px);
+    height: auto;
     overflow: hidden;
     display: flex;
     justify-content: center;
@@ -11,19 +11,21 @@
 
 .hero-image {
     width: 100%;
-    height: 100%;
-    object-fit: cover;
+    height: auto;
+    display: block;
     filter: brightness(0.9); 
 }
 
 .hero-overlay {
     position: absolute;
-    color: white;
-    text-shadow: 0px 4px 10px rgba(0,0,0,0.3);
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
 }
 
 .hero-overlay .greeting-text {
-    color: #ffffff; /* El texto de bienvenida ahora sobre la foto */
+    color: #ffffff;
     font-size: 3.5rem;
     letter-spacing: 2px;
 }
