@@ -6,7 +6,7 @@
     padding: 0 5%;
     background-color: var(--bg-color);
     border-bottom: 1px solid #eeeeee;
-    position: sticky;
+    position: sticky; 
     top: 0;
     z-index: 1000;
 }
@@ -16,6 +16,7 @@
     letter-spacing: 4px;
     text-transform: uppercase;
     font-weight: 800;
+    color: var(--primary-color);
 }
 
 .navbar-links {
@@ -24,14 +25,21 @@
     gap: 30px;
 }
 
+
 .navbar-links a {
     text-decoration: none;
     color: var(--primary-color);
     font-size: 0.9rem;
     font-weight: 500;
     transition: 0.3s;
+    font-family: 'Inter', sans-serif; 
 }
 
 .navbar-links a:hover {
     color: var(--text-secondary);
+}
+
+.navbar-links .active {
+    color: var(--text-secondary);
+    border-bottom: 2px solid var(--primary-color);
 }
