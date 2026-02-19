@@ -1,9 +1,12 @@
 import { useState, useContext } from "react";
 import { CartContext } from "../context/CartContext";
+import { db } from "../service/firebase";
+import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { Link } from "react-router-dom";
 
 const Checkout = () => {
     const [orderId, setOrderId] = useState(null);
+    const [loading, setLoading] = useState(false);
     const [buyer, setBuyer] = useState({
         name: '',
         phone: '',
@@ -20,7 +23,7 @@ const Checkout = () => {
         });
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         
         if (buyer.email !== buyer.emailConfirm) {
@@ -28,19 +31,46 @@ const Checkout = () => {
             return;
         }
 
-        // Aquí es donde luego conectaremos con Firebase. 
-        // Por ahora simulamos un ID de orden.
-        const idGenerated = "ORD-" + Math.random().toString(36).substr(2, 9).toUpperCase();
-        setOrderId(idGenerated);
-        clearCart();
+        setLoading(true);
+
+        const order = {
+            buyer: { 
+                name: buyer.name, 
+                phone: buyer.phone, 
+                email: buyer.email 
+            },
+            items: cart.map(prod => ({
+                id: prod.id,
+                title: prod.name,
+                price: prod.price,
+                quantity: prod.quantity
+            })),
+            total: totalPrice(),
+            date: serverTimestamp() 
+        };
+
+        try {
+            const ordersCollection = collection(db, "orders");
+            const docRef = await addDoc(ordersCollection, order);
+            setOrderId(docRef.id); 
+            clearCart();
+        } catch (error) {
+            console.error("Error al generar la orden:", error);
+            alert("Hubo un error al procesar su compra");
+        } finally {
+            setLoading(false);
+        }
     };
 
-    const order = {
-            buyer: { name: buyer.name, phone: buyer.phone, email: buyer.email },
-            items: cart,
-            total: totalPrice(),
-            date: new Date()
-        };
+    if (orderId) {
+        return (
+            <div style={{ textAlign: 'center', padding: '50px' }}>
+                <h1>¡Gracias por tu compra!</h1>
+                <p>Tu número de seguimiento es: <strong>{orderId}</strong></p>
+                <Link to="/" className="btn-finish">Volver al inicio</Link>
+            </div>
+        );
+    }
 
     if (cart.length === 0) {
         return (
@@ -76,8 +106,8 @@ const Checkout = () => {
                     <h3>Total a pagar: ${totalPrice()}</h3>
                 </div>
                 
-                <button type="submit" className="btn-finish" style={{ cursor: 'pointer' }}>
-                    Confirmar Compra
+                <button type="submit" className="btn-finish" style={{ cursor: 'pointer' }} disabled={loading}>
+                    {loading ? "Procesando..." : "Confirmar Compra"}
                 </button>
             </form>
         </div>
