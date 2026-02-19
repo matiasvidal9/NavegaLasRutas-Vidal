@@ -5,48 +5,29 @@ import { CartContext } from "../context/CartContext";
 import "../css/ItemDetail.css";
 
 const ItemDetail = ({ item }) => {
-    const [quantityAdded, setQuantityAdded] = useState(0);
-    const { addItem, getProductQuantity } = useContext(CartContext);
+    // IMPORTANTE: Si item no existe todavía, no renderizamos nada para evitar el error
+    if (!item) return null;
 
-
-    const cartQuantity = getProductQuantity(item.id);
-    const availableStock = item.stock - cartQuantity;
-
-    const handleOnAdd = (quantity) => {
-        setQuantityAdded(quantity);
-        addItem(item, quantity);
+    const onAdd = (quantity) => {
+        console.log(`Agregado al carrito: ${quantity} unidades de ${item.name}`);
     };
 
     return (
-        <article className="item-detail-view">
-            <div className="detail-img-container">
-                <img src={item.img} alt={item.name} />
-            </div>
-            <div className="detail-info">
-                <span className="detail-category">{item.category}</span>
-                <h1>{item.name}</h1>
-                <p className="detail-price">${item.price}</p>
-                <p className="detail-description">
-                    Calidad premium y diseño exclusivo para esta temporada.
-                </p>
-                <div className="detail-stock">
-                {availableStock > 0 
-                    ? `Stock disponible: ${availableStock} unidades` 
-                    : "No queda stock disponible (ya está en tu carrito)"}
-                </div>
-            
-                    <footer className="ItemFooter">
-                        {quantityAdded > 0 ? (
-                            <Link to="/cart" className="btn-finish">Terminar compra</Link>
-                        ) : (
-                            <ItemCount 
-                                initial={availableStock > 0 ? 1 : 0} 
-                                stock={availableStock} 
-                                onAdd={handleOnAdd} 
-                            />
-                        )}
-                    </footer>
-            </div>
+        <article className="CardItem" style={{ border: '1px solid #ccc', padding: '20px', textAlign: 'center' }}>
+            <header className="Header">
+                <h2 className="ItemHeader">{item.name}</h2>
+            </header>
+            <picture>
+                <img src={item.img} alt={item.name} className="ItemImg" style={{ width: '200px' }} />
+            </picture>
+            <section>
+                <p className="Info">Categoría: {item.category}</p>
+                <p className="Info">Descripción: {item.description}</p>
+                <p className="Info">Precio: ${item.price}</p>
+            </section>
+            <footer className="ItemFooter">
+                <ItemCount stock={item.stock} initial={1} onAdd={onAdd} />
+            </footer>
         </article>
     );
 };
