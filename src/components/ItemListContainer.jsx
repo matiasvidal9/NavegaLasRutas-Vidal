@@ -9,7 +9,7 @@ const ItemListContainer = () => {
     const { categoryId } = useParams();
 
     useEffect(() => {
-        const productsRef = collection(db, "products");
+        const productsRef = collection(db, "productos");
         
         const q = categoryId 
             ? query(productsRef, where("category", "==", categoryId))
@@ -18,8 +18,8 @@ const ItemListContainer = () => {
         getDocs(q)
             .then((snapshot) => {
         const productsAdapted = snapshot.docs.map(doc => ({
-            id: doc.id, // Aquí Firebase te da el ID real
-            ...doc.data() // Aquí vienen name, price, category, etc.
+            id: doc.id,
+            ...doc.data() 
         }));
         setProducts(productsAdapted);
     })

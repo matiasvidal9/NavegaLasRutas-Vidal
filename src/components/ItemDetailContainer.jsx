@@ -9,7 +9,7 @@ const ItemDetailContainer = () => {
     const { itemId } = useParams();
 
     useEffect(() => {
-        const docRef = doc(db, "products", itemId);
+        const docRef = doc(db, "productos", itemId);
 
         getDoc(docRef)
             .then((snapshot) => {
