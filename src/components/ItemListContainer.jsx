@@ -1,32 +1,39 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { db } from "../service/firebase"; 
-import { collection, getDocs, query, where } from "firebase/firestore";
+import { getFirestore, collection, getDocs, query, where } from "firebase/firestore";
 import ItemList from "./ItemList";
 
 const ItemListContainer = () => {
     const [products, setProducts] = useState([]);
+    const [loading, setLoading] = useState(true);
     const { categoryId } = useParams();
 
     useEffect(() => {
-        const productsRef = collection(db, "productos");
-        
+        setLoading(true);
+        const db = getFirestore();
+        const itemsCollection = collection(db, "productos");
+
+        // Lógica de filtrado según la rúbrica (Uso de query y where)
         const q = categoryId 
-            ? query(productsRef, where("category", "==", categoryId))
-            : productsRef;
+            ? query(itemsCollection, where("category", "==", categoryId)) 
+            : itemsCollection;
 
         getDocs(q)
             .then((snapshot) => {
-        const productsAdapted = snapshot.docs.map(doc => ({
-            id: doc.id,
-            ...doc.data() 
-        }));
-        setProducts(productsAdapted);
-    })
-            .catch(error => console.error("Error al obtener productos:", error));
+                const docs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                setProducts(docs);
+            })
+            .catch(error => console.error("Error Firestore:", error))
+            .finally(() => setLoading(false));
     }, [categoryId]);
 
-    return <ItemList products={products} />;
+    if (loading) return <h2>Cargando productos...</h2>;
+
+    return (
+        <div className="container">
+            <ItemList products={products} />
+        </div>
+    );
 };
 
 export default ItemListContainer;
