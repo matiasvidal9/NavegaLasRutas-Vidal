@@ -17,13 +17,12 @@ const ItemListContainer = () => {
 
         getDocs(q)
             .then((snapshot) => {
-                console.log("Documentos encontrados:", snapshot.size);
-                const productsAdapted = snapshot.docs.map(doc => ({
-                    id: doc.id,
-                    ...doc.data()
-                }));
-                setProducts(productsAdapted);
-            })
+        const productsAdapted = snapshot.docs.map(doc => ({
+            id: doc.id, // Aquí Firebase te da el ID real
+            ...doc.data() // Aquí vienen name, price, category, etc.
+        }));
+        setProducts(productsAdapted);
+    })
             .catch(error => console.error("Error al obtener productos:", error));
     }, [categoryId]);
 
