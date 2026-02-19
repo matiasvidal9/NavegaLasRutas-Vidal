@@ -1,29 +1,27 @@
 import { useState, useContext } from "react";
 import { Link } from "react-router-dom";
-import ItemCount from "./ItemCount";
 import { CartContext } from "../context/CartContext";
+import ItemCount from "./ItemCount";
 import "../css/ItemDetail.css";
 
 const ItemDetail = ({ item }) => {
-    const [isInCart, setIsInCart] = useState(false);
+    const [goToCart, setGoToCart] = useState(false);
     const { addItem } = useContext(CartContext);
 
-    if (!item || Object.keys(item).length === 0) {
-        return <h2 className="Loading">Cargando producto...</h2>;
-    }
-
     const onAdd = (quantity) => {
-        setIsInCart(true);
+        setGoToCart(true);
         addItem(item, quantity);
     };
 
+    if (!item) return null;
+
     return (
-        <article className="CardItem" style={{ border: '1px solid #ccc', padding: '20px', textAlign: 'center' }}>
+        <article className="CardItem">
             <header className="Header">
                 <h2 className="ItemHeader">{item.name}</h2>
             </header>
             <picture>
-                <img src={item.img} alt={item.name} className="ItemImg" style={{ width: '200px' }} />
+                <img src={item.img} alt={item.name} className="ItemImg" />
             </picture>
             <section>
                 <p className="Info">Categoría: {item.category}</p>
@@ -32,11 +30,9 @@ const ItemDetail = ({ item }) => {
             </section>
             <footer className="ItemFooter">
                 {
-                    isInCart ? (
-                        <Link to='/cart' className='Option'>Finalizar Compra</Link>
-                    ) : (
-                        <ItemCount stock={item.stock} initial={1} onAdd={onAdd} />
-                    )
+                    goToCart 
+                        ? <Link to='/cart' className="Option">Terminar mi compra</Link>
+                        : <ItemCount initial={1} stock={item.stock} onAdd={onAdd} />
                 }
             </footer>
         </article>
