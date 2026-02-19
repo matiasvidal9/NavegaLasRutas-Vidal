@@ -1,39 +1,33 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { getProducts } from "../mock/mockData";
+import { db } from "../service/firebase"; 
+import { collection, getDocs, query, where } from "firebase/firestore";
 import ItemList from "./ItemList";
-import { collection } from "firebase/firestore";
 
 const ItemListContainer = () => {
     const [products, setProducts] = useState([]);
-    const [loading, setLoading] = useState(true); 
     const { categoryId } = useParams();
 
-        useEffect(() => {
-            setLoading(true);
-            getProducts()
-            .then(res => {
-                if (categoryId) {
-                    const filtered = res.filter(prod => prod.category === categoryId);
-                    setProducts(filtered);
-                } else {
-                    setProducts(res); 
-                }
+    useEffect(() => {
+        const productsRef = collection(db, "products");
+        
+        const q = categoryId 
+            ? query(productsRef, where("category", "==", categoryId))
+            : productsRef;
+
+        getDocs(q)
+            .then((snapshot) => {
+                console.log("Documentos encontrados:", snapshot.size);
+                const productsAdapted = snapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                }));
+                setProducts(productsAdapted);
             })
-            .catch(err => console.error(err))
-            .finally(() => {
-                setLoading(false);
-            });
+            .catch(error => console.error("Error al obtener productos:", error));
     }, [categoryId]);
 
-    if (loading) {
-        return <h2 style={{textAlign: 'center', marginTop: '50px'}}>Cargando productos...</h2>;
-    }
-
-    return (
-        <div className="item-list-container">
-            <ItemList products={products} />
-        </div>
-    );
+    return <ItemList products={products} />;
 };
+
 export default ItemListContainer;

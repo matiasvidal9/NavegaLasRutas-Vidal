@@ -1,34 +1,26 @@
 import { useState, useEffect } from "react";
-import { useParams } from "react-router-dom"; 
-import { getProducts } from "../mock/mockData";
-import ItemDetail from "./ItemDetail"; 
+import { useParams } from "react-router-dom";
+import { db } from "../service/firebase";
+import { doc, getDoc } from "firebase/firestore";
+import ItemDetail from "./ItemDetail";
 
 const ItemDetailContainer = () => {
-    const [item, setItem] = useState(null);
-    const [loading, setLoading] = useState(true);
-    const { itemId } = useParams(); 
+    const [product, setProduct] = useState(null);
+    const { itemId } = useParams();
 
     useEffect(() => {
-    setLoading(true);
-    
-    getProductById(itemId)
-        .then(res => {
-            setItem(res);
-        })
-        .finally(() => {
-            setLoading(false);
-        });
-}, [itemId]);
+        const docRef = doc(db, "products", itemId);
 
-    if (loading) {
-        return <h2 style={{textAlign: 'center', marginTop: '50px'}}>Cargando detalle...</h2>;
-    }
+        getDoc(docRef)
+            .then((snapshot) => {
+                if (snapshot.exists()) {
+                    setProduct({ id: snapshot.id, ...snapshot.data() });
+                }
+            })
+            .catch(error => console.error("Error al obtener producto:", error));
+    }, [itemId]);
 
-    return (
-        <div className="item-detail-container">
-            <ItemDetail item={item} />
-        </div>
-    );
+    return <ItemDetail {...product} />;
 };
 
 export default ItemDetailContainer;
